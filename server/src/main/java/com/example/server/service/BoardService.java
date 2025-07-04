@@ -30,6 +30,10 @@ public class BoardService {
         return board;
     }
 
+    public void delete(Long id) {
+        boardRepository.deleteById(id);
+    }
+
     public Board create(BoardDTO dto) {
         Board board = Board.builder()
                 .id(dto.getId())

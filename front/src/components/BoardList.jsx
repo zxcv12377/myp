@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const BoardList = () => {
   const [posts, setPosts] = useState([]);
+  const navigate = useNavigate();
   const ViewList = async () => {
     try {
       const res = await axios.get("http://localhost:8080/board/");
@@ -12,6 +14,11 @@ const BoardList = () => {
       console.error("게시글 불러오기 실패 : ", error);
     }
   };
+
+  const pageHandler = (id) => {
+    navigate(`/board/${id}`);
+  };
+
   useEffect(() => {
     ViewList();
   }, []);
@@ -43,7 +50,7 @@ const BoardList = () => {
                 <tr
                   key={item.id}
                   className="hover:bg-gray-50 border-b border-gray-200 cursor-pointer"
-                  onClick={() => (window.location.href = `/board/${item.id}`)}
+                  onClick={() => pageHandler(item.id)}
                 >
                   <td className="px-4 py-2">{posts.length - index}</td>
                   <td className="px-4 py-2 text-blue-700 hover:underline">{item.title}</td>

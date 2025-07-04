@@ -16,6 +16,7 @@ import com.example.server.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -33,6 +34,11 @@ public class BoardController {
         return ResponseEntity.ok(boardService.list());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Board> getRow(@PathVariable Long id) {
+        return ResponseEntity.ok(boardService.getOne(id));
+    }
+
     @PostMapping("/create")
     public ResponseEntity<Board> create(@RequestBody BoardDTO dto) {
         Board board = boardService.create(dto);
@@ -44,6 +50,11 @@ public class BoardController {
         // TODO: process PUT request
 
         return entity;
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteRow(Long id) {
+        boardService.delete(id);
     }
 
 }
