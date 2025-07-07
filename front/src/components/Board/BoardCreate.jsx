@@ -1,14 +1,17 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const BoardCreate = () => {
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const handlesSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await axios.post("http://localhost:8080/board/create", { title, content });
-      console.log(data);
+      const res = await axios.post("http://localhost:8080/board/create", { title, content });
+      navigate(`/board/${res.data.id}`);
     } catch (error) {
       console.error("에러 : ", error);
     }

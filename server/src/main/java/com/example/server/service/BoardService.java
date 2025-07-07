@@ -3,6 +3,7 @@ package com.example.server.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.server.dto.BoardDTO;
 import com.example.server.entity.Board;
@@ -23,11 +24,12 @@ public class BoardService {
         return boardRepository.findById(id).get();
     }
 
-    public Board update(BoardDTO dto) {
-        Board board = boardRepository.findById(dto.getId()).get();
+    public Board update(Long id, BoardDTO dto) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
         board.changeTitle(dto.getTitle());
         board.changeContent(dto.getContent());
-        return board;
+        return boardRepository.save(board);
     }
 
     public void delete(Long id) {
@@ -42,5 +44,10 @@ public class BoardService {
                 .build();
 
         return boardRepository.save(board);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Board> getBoardPage(int page, int size) {
+        return boardRepository.getBoardList(page, size);
     }
 }

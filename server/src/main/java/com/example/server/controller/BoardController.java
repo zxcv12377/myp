@@ -45,16 +45,23 @@ public class BoardController {
         return ResponseEntity.ok(board);
     }
 
-    @PutMapping("path/{id}")
-    public String putMethodName(@PathVariable String id, @RequestBody String entity) {
-        // TODO: process PUT request
-
-        return entity;
+    @PutMapping("/modify/{id}")
+    public ResponseEntity<Board> update(@PathVariable Long id, @RequestBody BoardDTO dto) {
+        Board board = boardService.update(id, dto);
+        return ResponseEntity.ok(board);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public void deleteRow(Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRow(@PathVariable Long id) {
         boardService.delete(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<List<Board>> getBoardPage(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(boardService.getBoardPage(page, size));
     }
 
 }

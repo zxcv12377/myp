@@ -1,9 +1,8 @@
 package com.example.server.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-import com.example.server.entity.Board;
-
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,28 +15,12 @@ import lombok.NoArgsConstructor;
 public class BoardDTO {
     private Long id;
     private String title;
+    @NotBlank(message = "댓글 내용은 공백일 수 없습니다.")
     private String content;
 
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
     private Long views;
     private Long likes;
 
-    public BoardDTO entityToDto(Board board) {
-        BoardDTO dto = BoardDTO.builder()
-                .id(board.getId())
-                .title(board.getTitle())
-                .content(board.getContent())
-                .build();
-        return dto;
-    }
-
-    public Board dtoToEntity(BoardDTO dto) {
-        Board board = Board.builder()
-                .id(dto.getId())
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .build();
-        return board;
-    }
 }

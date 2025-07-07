@@ -36,11 +36,12 @@ public class securityConfig {
                 // .formLogin(Customizer.withDefaults()); // 시큐리티가 제공하는 기본 로그인 폼 페이지
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/css/**", "/js/**", "/image/**").permitAll()
-                        .requestMatchers(HttpMethod.GET).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/board/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT).permitAll()
-                        .requestMatchers(HttpMethod.DELETE)
-                        .authenticated().anyRequest().permitAll());
+                        .requestMatchers(HttpMethod.GET, "/board", "/board/**", "/comment/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/board/**", "/comment/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/board/**", "/comment/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/board/**", "/comment/**").permitAll()
+                        .anyRequest().permitAll());
+        // .authenticated()
 
         // http.logout(logout -> logout
         // .logoutRequestMatcher(new AntPathRequestMatcher("/member/logout"))
