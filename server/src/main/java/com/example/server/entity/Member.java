@@ -1,6 +1,5 @@
 package com.example.server.entity;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +19,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,7 +34,9 @@ public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String email;
+    @Column(unique = true)
     private String nickname;
     private String password;
     private String profile;
@@ -48,8 +50,6 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false)
     private boolean emailverified;
-    private String verificationToken;
-    private LocalDateTime tokenExpiry; // 이메일 토큰 인증 시간
 
     @OneToMany(mappedBy = "member")
     private List<Board> boards;
@@ -61,11 +61,10 @@ public class Member extends BaseEntity {
         this.emailverified = emailverified;
     }
 
-    public void changeVerificationToken(String verificationToken) {
-        this.verificationToken = verificationToken;
-    }
-
-    public void changeTokenExpiry(LocalDateTime tokenExpiry) {
-        this.tokenExpiry = tokenExpiry;
+    @PrePersist
+    private void ensureDefaultRole() {
+        if (roles.isEmpty()) {
+            roles.add(UserRole.USER);
+        }
     }
 }

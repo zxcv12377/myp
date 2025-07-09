@@ -46,17 +46,9 @@ public class SecurityConfig {
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(authorize -> authorize
                                                 .requestMatchers("/css/**", "/js/**", "/image/**").permitAll()
-                                                .requestMatchers(HttpMethod.GET, "/board", "/board/**", "/comment/**",
-                                                                "/member/**")
+                                                .requestMatchers(HttpMethod.GET, "/board", "/board/**")
                                                 .permitAll()
-                                                .requestMatchers(HttpMethod.POST, "/board/**", "/comment/**",
-                                                                "/member/**", "/auth/register")
-                                                .permitAll()
-                                                .requestMatchers(HttpMethod.PUT, "/board/**", "/comment/**",
-                                                                "/member/**")
-                                                .permitAll()
-                                                .requestMatchers(HttpMethod.DELETE, "/board/**", "/comment/**",
-                                                                "/member/**")
+                                                .requestMatchers("/auth/register", "/auth/login", "/auth/verify")
                                                 .permitAll()
                                                 .requestMatchers("/error").permitAll()
                                                 .anyRequest().authenticated())

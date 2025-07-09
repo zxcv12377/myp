@@ -8,8 +8,6 @@ import com.example.server.entity.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    Optional<Member> findByVerificationToken(String verificationToken);
-
     Optional<Member> findByEmail(String email);
 
     boolean existsByEmail(String email);

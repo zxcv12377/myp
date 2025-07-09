@@ -22,4 +22,8 @@ public abstract class BaseEntity {
 
     @LastModifiedDate
     private LocalDateTime updatedDate;
+
+    public void changeUpdatedDate(LocalDateTime updatedDate) {
+        this.updatedDate = updatedDate;
+    }
 }
