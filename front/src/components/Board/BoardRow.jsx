@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import CommentList from "../Comment/CommentList";
+import CommentList from "../comment/CommentList";
 
 const BoardRow = () => {
   const navigate = useNavigate();
@@ -75,13 +75,13 @@ const BoardRow = () => {
               <button
                 type="button"
                 onClick={moveModifyHandler}
-                className="px-4 py-0.5 text-green-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors duration-200 font-bold mr-1.5"
+                className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200 transition mr-2"
               >
                 수정
               </button>
               <button
                 type="button"
-                className="px-4 py-0.5 text-red-500 bg-gray-100 rounded hover:bg-gray-200 transition-colors duration-200 font-bold mr-1.5"
+                className="px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition"
                 onClick={deleteRow}
               >
                 삭제

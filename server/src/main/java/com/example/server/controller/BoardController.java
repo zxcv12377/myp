@@ -2,15 +2,12 @@ package com.example.server.controller;
 
 import java.util.List;
 
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.server.dto.BoardDTO;
 import com.example.server.entity.Board;
-import com.example.server.repository.BoardRepository;
 import com.example.server.service.BoardService;
 
 import lombok.RequiredArgsConstructor;

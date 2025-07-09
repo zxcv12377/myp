@@ -1,82 +1,81 @@
 package com.example.server.config;
 
+import com.example.server.security.JwtAuthenticationFilter;
+import com.example.server.security.JwtTokenProvider;
+import com.example.server.security.MemberDetailsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices.RememberMeTokenAlgorithm;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+@RequiredArgsConstructor
 @EnableMethodSecurity
 @EnableWebSecurity
 @Configuration
-public class securityConfig {
+public class SecurityConfig {
 
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // CSRF 비활성화 (REST API용)
+        private final MemberDetailsService memberDetailsService;
+        private final JwtTokenProvider jwtTokenProvider;
+        private final BeanConfig beanConfig;
 
-                // .authorizeHttpRequests(authorize -> authorize
-                // .requestMatchers("/", "/sample/guest").permitAll()
-                // .requestMatchers("/sample/member").hasRole("USER")
-                // .requestMatchers("/sample/admin").hasRole("ADMIN")
-                // .anyRequest().authenticated())
-                // .httpBasic(Customizer.withDefaults());
-                // .formLogin(Customizer.withDefaults()); // 시큐리티가 제공하는 기본 로그인 폼 페이지
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/css/**", "/js/**", "/image/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/board", "/board/**", "/comment/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/board/**", "/comment/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/board/**", "/comment/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/board/**", "/comment/**").permitAll()
-                        .anyRequest().permitAll());
-        // .authenticated()
+        @Bean
+        public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+                AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
+                auth.userDetailsService(memberDetailsService)
+                                .passwordEncoder(beanConfig.passwordEncoder());
+                return auth.build();
+        }
 
-        // http.logout(logout -> logout
-        // .logoutRequestMatcher(new AntPathRequestMatcher("/member/logout"))
-        // .logoutSuccessUrl("/"));
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable()) // CSRF 비활성화 (REST API용)
+                                .cors(Customizer.withDefaults())
+                                .sessionManagement(sm -> sm
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(authorize -> authorize
+                                                .requestMatchers("/css/**", "/js/**", "/image/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/board", "/board/**", "/comment/**",
+                                                                "/member/**")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/board/**", "/comment/**",
+                                                                "/member/**", "/auth/register")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.PUT, "/board/**", "/comment/**",
+                                                                "/member/**")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.DELETE, "/board/**", "/comment/**",
+                                                                "/member/**")
+                                                .permitAll()
+                                                .requestMatchers("/error").permitAll()
+                                                .anyRequest().authenticated())
+                                .addFilterBefore(
+                                                new JwtAuthenticationFilter(jwtTokenProvider),
+                                                UsernamePasswordAuthenticationFilter.class)
+                                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean // = new 한 뒤 스프링 컨데이너가 관리
-    PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
-
-    @Bean
-    RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
-        RememberMeTokenAlgorithm encodingAlgorithm = RememberMeTokenAlgorithm.SHA256;
-        TokenBasedRememberMeServices rememberMeServices = new TokenBasedRememberMeServices("myKey",
-                userDetailsService, encodingAlgorithm);
-        rememberMeServices.setMatchingAlgorithm(RememberMeTokenAlgorithm.MD5);
-        rememberMeServices.setTokenValiditySeconds(60 * 60 * 24 * 7);// 일주일 기억
-        return rememberMeServices;
-    }
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173") // React 개발 서버 주소
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
-    }
-
+        // @Bean
+        // public RememberMeServices rememberMeServices(UserDetailsService
+        // userDetailsService) {
+        // RememberMeTokenAlgorithm encoding = RememberMeTokenAlgorithm.SHA256;
+        // TokenBasedRememberMeServices rm = new TokenBasedRememberMeServices("myKey",
+        // userDetailsService, encoding);
+        // rm.setMatchingAlgorithm(RememberMeTokenAlgorithm.SHA256);
+        // rm.setTokenValiditySeconds(7 * 24 * 60 * 60); // 일주일
+        // return rm;
+        // }
 }
