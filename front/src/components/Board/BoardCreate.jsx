@@ -10,7 +10,7 @@ const BoardCreate = () => {
   const handlesSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8080/board/create", { title, content });
+      const res = await axios.post("/board/create", { title, content });
       navigate(`/board/${res.data.id}`);
     } catch (error) {
       console.error("에러 : ", error);

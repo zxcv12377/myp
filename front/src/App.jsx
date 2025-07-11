@@ -8,20 +8,24 @@ import CommentList from "./components/comment/CommentList";
 import RegisterForm from "./components/userform/RegisterForm";
 import EmailAuth from "./components/emailauth/EmailAuth";
 import LoginForm from "./components/userform/LoginForm";
+import Navbar from "./components/navbar/Navbar";
+import PageLayout from "./Layout/PageLayout";
 
 function App() {
   return (
     <>
+      <Navbar />
       <Routes>
-        <Route path="/" element={<BoardList />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<LoginForm />} />
-        <Route path="/logout" element={<RegisterForm />} />
-        <Route path="/board/create" element={<BoardCreate />} />
-        <Route path="/board/:id" element={<BoardRow />} />
-        <Route path="/board/modify/:id" element={<BoardModify />} />
-        <Route path="/comment" element={<CommentList />} />
-        <Route path="/email-verify" element={<EmailAuth />} />
+        <Route element={<PageLayout />}>
+          <Route path="/" element={<BoardList />} />
+          <Route path="/board/create" element={<BoardCreate />} />
+          <Route path="/board/:id" element={<BoardRow />} />
+          <Route path="/board/modify/:id" element={<BoardModify />} />
+          <Route path="/comment" element={<CommentList />} />
+          <Route path="/email-verify/:shortId" element={<EmailAuth />} />
+        </Route>
       </Routes>
     </>
   );

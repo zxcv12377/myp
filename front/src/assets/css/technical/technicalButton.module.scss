@@ -1,0 +1,138 @@
+@use "sass:meta";
+@use "sass:math";
+
+// 2️⃣ 우리 변수·믹스인 로드 (경로는 실제 파일 위치에 맞춰 조정)
+@use "./variables" as vars;
+@use "./mixins" as mixins;
+
+// 3️⃣ 버튼 스타일
+.btn {
+  // transition 믹스인
+  @include mixins.transition(all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94));
+  font-family: "Roboto Mono", sans-serif;
+  font-weight: 500;
+  border: 1px solid vars.$black;
+  line-height: 1.5;
+  font-size: 14px;
+  padding: 16px;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  background-color: vars.$white;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  text-align: center;
+
+  &:focus {
+    outline: none;
+  }
+
+  // 반응형
+  @include mixins.break(vars.$small-3) {
+    max-width: 220px;
+    &.btn-small {
+      max-width: 180px;
+    }
+  }
+  @include mixins.break(vars.$small-2) {
+    display: inline-block;
+  }
+}
+
+.btn-clear {
+  background: transparent;
+  &:hover {
+    background: vars.$black;
+    color: vars.$white;
+  }
+  &.btn-light {
+    border-color: vars.$white;
+    color: vars.$white;
+    &:hover {
+      background: vars.$white;
+      color: vars.$black;
+    }
+  }
+}
+
+.btn-light {
+  &:hover {
+    background: vars.$black;
+    color: vars.$white;
+  }
+}
+
+.btn-dark {
+  background: vars.$black;
+  color: vars.$white;
+  border-color: vars.$white;
+  &:hover {
+    color: vars.$gray;
+  }
+}
+
+.btn-glitch {
+  transform: translateZ(0);
+  overflow: visible;
+
+  &.btn-glitch-active {
+    filter: url("#filter");
+    &::after,
+    &::before {
+      content: "";
+      position: absolute;
+      top: -1px;
+      bottom: -1px;
+      width: 1px;
+    }
+    &::after {
+      left: -2px;
+      background: vars.$glitch-red;
+      animation: colorshift-red 2.6s infinite step-end;
+    }
+    &::before {
+      right: -2px;
+      background: vars.$glitch-blue;
+      animation: colorshift-blue 2.6s infinite step-end;
+    }
+  }
+}
+
+// 키프레임도 함께
+@keyframes colorshift-red {
+  0%,
+  7% {
+    background-color: vars.$glitch-red;
+  }
+  8%,
+  18% {
+    background-color: transparent;
+  }
+  19% {
+    background-color: vars.$glitch-red;
+    width: 2px;
+  }
+  23%,
+  100% {
+    background-color: transparent;
+  }
+}
+@keyframes colorshift-blue {
+  0%,
+  7% {
+    background-color: vars.$glitch-blue;
+  }
+  8%,
+  18% {
+    background-color: transparent;
+  }
+  19% {
+    background-color: vars.$glitch-blue;
+    width: 2px;
+  }
+  23%,
+  100% {
+    background-color: transparent;
+  }
+}

@@ -1,80 +1,101 @@
-import React, { useState } from "react";
 import axios from "axios";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigete = useNavigate();
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  // 인터셉터는 한 번만 등록
+  useEffect(() => {
+    const reqInterceptor = axios.interceptors.request.use((config) => {
+      const token = localStorage.getItem("accessToken");
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+      return config;
+    });
+
+    const resInterceptor = axios.interceptors.response.use(
+      (res) => res,
+      async (err) => {
+        if (err.response?.status === 401) {
+          // 1) 로컬스토리지에서 refreshToken 꺼내기
+          const refreshToken = localStorage.getItem("refreshToken");
+          // 2) 없으면 재발급 불가 → 로그인 페이지로 강제 리다이렉트
+          if (!refreshToken) {
+            window.location.href = "/login";
+            return Promise.reject(err);
+          }
+
+          try {
+            // 3) refreshToken 이 있을 때만 재발급 시도
+            const { data } = await axios.post("/auth/refresh", { refreshToken });
+
+            // 4) 새 토큰 저장하고, 원래 요청 retry
+            localStorage.setItem("accessToken", data.accessToken);
+            err.config.headers.Authorization = `Bearer ${data.accessToken}`;
+            return axios(err.config);
+          } catch (refreshErr) {
+            // 5) 재발급 실패했으면 토큰들 삭제하고 로그인 페이지로
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            window.location.href = "/login";
+            return Promise.reject(refreshErr);
+          }
+        }
+        return Promise.reject(err);
+      }
+    );
+
+    return () => {
+      axios.interceptors.request.eject(reqInterceptor);
+      axios.interceptors.response.eject(resInterceptor);
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8080/auth/login", form);
-      setMessage("인증 이메일을 발송했습니다. 이메일을 확인해주세요.");
-      setForm({ email: "", password: "" });
-      navigete("/");
+      const { data } = await axios.post("/auth/login", { email, password });
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+      setMessage("로그인 성공!");
+      // 필요하면 리다이렉트
+      navigate("/");
     } catch (err) {
-      setMessage(err.response?.data || "회원가입에 실패했습니다.");
+      setMessage("로그인 실패: " + (err.response?.data || err.message));
     }
   };
 
-  const moveLogin = () => {
-    navigete("/register");
-  };
-
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow">
-      <h2 className="text-2xl font-semibold mb-4 text-gray-900">회원가입</h2>
-      {message && <div className="mb-4 text-center text-sm text-green-600">{message}</div>}
+    <div className="max-w-sm mx-auto mt-10 p-6 bg-white shadow rounded">
+      <h2 className="text-2xl font-semibold mb-4">로그인</h2>
+      {message && <p className="mb-4 text-center text-red-500">{message}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-gray-700 mb-1">
-            이메일
-          </label>
+          <label className="block mb-1">이메일</label>
           <input
             type="email"
-            id="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full p-2 border rounded"
           />
         </div>
         <div>
-          <label htmlFor="password" className="block text-gray-700 mb-1">
-            비밀번호
-          </label>
+          <label className="block mb-1">비밀번호</label>
           <input
             type="password"
-            id="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
-            minLength={6}
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full p-2 border rounded"
           />
         </div>
-        <div className="flex">
-          <button
-            type="submit"
-            className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition mr-1"
-          >
-            로그인
-          </button>
-          <button
-            onClick={moveLogin}
-            className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-          >
-            회원가입
-          </button>
-        </div>
+        <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          로그인
+        </button>
       </form>
     </div>
   );

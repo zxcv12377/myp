@@ -1,5 +1,6 @@
 package com.example.server.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.example.server.Base.BaseEntity;
@@ -42,8 +43,6 @@ public class Board extends BaseEntity {
     private String title;
     @NotNull
     private String content;
-    private Long views; // 조회수
-    private Long likes; // 좋아요
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -51,7 +50,17 @@ public class Board extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonManagedReference
     private Member member;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Like> likesList = new ArrayList<>();
+
+    public Long getLikesCount() {
+        return (long) this.likesList.size();
+    }
 
     public void changeTitle(String title) {
         this.title = title;
@@ -61,4 +70,7 @@ public class Board extends BaseEntity {
         this.content = content;
     }
 
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }

@@ -12,7 +12,7 @@ export default function RegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8080/auth/register", form);
+      await axios.post("/auth/register", form);
       setMessage("인증 이메일을 발송했습니다. 이메일을 확인해주세요.");
       setForm({ email: "", password: "", nickname: "" });
     } catch (err) {

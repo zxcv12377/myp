@@ -15,10 +15,10 @@ public class CustomUserDetails implements UserDetails {
     private final Long id;
     private final String email;
     private final String password;
-    private final boolean emailverified;
+    private final Boolean emailverified;
     private final Set<UserRole> roles;
 
-    public CustomUserDetails(Long id, String email, String password, boolean emailverified, Set<UserRole> roles) {
+    public CustomUserDetails(Long id, String email, String password, Boolean emailverified, Set<UserRole> roles) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -65,6 +65,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return emailverified;
+        return Boolean.TRUE.equals(emailverified);
     }
 }

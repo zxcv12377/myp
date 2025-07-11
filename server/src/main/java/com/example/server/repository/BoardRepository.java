@@ -12,4 +12,6 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Procedure(name = "Board.getBoardPage")
     List<Board> getBoardList(@Param("p_page") int page, @Param("p_size") int size);
+
+    List<Board> findTop5ByOrderByCreatedDateDesc();
 }

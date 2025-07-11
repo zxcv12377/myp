@@ -51,6 +51,7 @@ public class Comments extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonManagedReference
     private Member member;
 
     public void setParent(Comments parent) {

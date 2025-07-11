@@ -35,7 +35,7 @@ const BoardModify = () => {
   const updateRow = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put(`http://localhost:8080/board/modify/${id}`, { title, content });
+      const res = await axios.put(`/board/modify/${id}`, { title, content });
       navigate(`/board/${res.data.id}`);
     } catch (error) {
       console.error("수정 에러 : ", error);

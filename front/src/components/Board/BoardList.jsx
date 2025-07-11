@@ -3,13 +3,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const BoardList = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const navigate = useNavigate();
   const ViewList = async (page, size) => {
     try {
-      const res = await axios.get("http://localhost:8080/board/page", {
+      const res = await axios.get("/board/page", {
         params: { page, size },
       });
       if (Array.isArray(res.data)) {
@@ -28,12 +29,28 @@ const BoardList = () => {
   };
 
   const boardCreateHandler = () => {
-    navigate("/board/create");
+    if (isLoggedIn) {
+      navigate("/board/create");
+    } else {
+      const message = "게시글을 작성하려면 로그인이 필요합니다.\n 로그인 하시겠습니까?";
+      if (confirm(message)) {
+        navigate("/login");
+      }
+    }
   };
 
   useEffect(() => {
     ViewList(currentPage, pageSize);
   }, [currentPage]);
+
+  useEffect(() => {
+    const checkAuth = () => setIsLoggedIn(!!localStorage.getItem("accessToken"));
+
+    checkAuth();
+    window.addEventListener("storage", checkAuth);
+    return () => window.removeEventListener("storage", checkAuth);
+  }, []);
+
   return (
     <div className="min-h-screen bg-white p-8">
       <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">📋 게시글 목록</h2>

@@ -1,26 +1,27 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function EmailAuth() {
   const [message, setMessage] = useState("이메일 인증 중...");
   const hasFetched = useRef(false); // 한 번만 실행용 플래그
-  const [searchParams] = useSearchParams();
+  // const [searchParams] = useSearchParams();
+  const { shortId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     // 이미 한 번 실행했다면 무시
     if (hasFetched.current) return;
     hasFetched.current = true;
-
-    const token = searchParams.get("token");
-    if (!token) {
+    console.log("shortId" + shortId);
+    // const token = searchParams.get("token");
+    if (!shortId) {
       setMessage("잘못된 접근입니다.");
       return;
     }
 
     axios
-      .get(`http://localhost:8080/auth/verify?token=${token}`)
+      .get(`/auth/verify/${shortId}`)
       .then((res) => {
         // 서버가 성공 메시지를 스트링으로 던지면 그대로 쓰셔도 되고
         setMessage("이메일 인증 성공! 로그인 페이지로 이동합니다...");
@@ -43,7 +44,7 @@ export default function EmailAuth() {
         const serverMsg = typeof err.response?.data === "string" ? err.response.data : err.response?.data?.message;
         setMessage(serverMsg || "이메일 인증 실패 또는 만료됨");
       });
-  }, [navigate, searchParams]);
+  }, [shortId, navigate]);
 
   return <div>{message}</div>;
 }

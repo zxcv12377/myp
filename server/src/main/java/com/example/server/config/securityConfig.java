@@ -30,6 +30,11 @@ public class SecurityConfig {
         private final BeanConfig beanConfig;
 
         @Bean
+        public JwtAuthenticationFilter jwtAuthenticationFilter() {
+                return new JwtAuthenticationFilter(jwtTokenProvider);
+        }
+
+        @Bean
         public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
                 AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
                 auth.userDetailsService(memberDetailsService)
@@ -48,7 +53,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/css/**", "/js/**", "/image/**").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/board", "/board/**")
                                                 .permitAll()
-                                                .requestMatchers("/auth/register", "/auth/login", "/auth/verify")
+                                                .requestMatchers("/auth/register", "/auth/login", "/auth/verify/**")
                                                 .permitAll()
                                                 .requestMatchers("/error").permitAll()
                                                 .anyRequest().authenticated())

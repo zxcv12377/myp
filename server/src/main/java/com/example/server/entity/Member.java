@@ -6,7 +6,9 @@ import java.util.Set;
 
 import com.example.server.Base.BaseEntity;
 import com.example.server.entity.enums.UserRole;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -24,7 +26,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
 @Entity
 @Builder
 @Getter
@@ -49,13 +53,20 @@ public class Member extends BaseEntity {
     private Set<UserRole> roles = new HashSet<>();
 
     @Column(nullable = false)
-    private boolean emailverified;
+    private Boolean emailverified;
 
     @OneToMany(mappedBy = "member")
+    @JsonManagedReference
     private List<Board> boards;
 
     @OneToMany(mappedBy = "member")
+    @JsonManagedReference
     private List<Comments> comments;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Like> likedBoards = new java.util.ArrayList<>();
 
     public void changeEmailverified(boolean emailverified) {
         this.emailverified = emailverified;
