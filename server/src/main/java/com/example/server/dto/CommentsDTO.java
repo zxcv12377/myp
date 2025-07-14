@@ -20,6 +20,7 @@ public class CommentsDTO {
     private Long hates;
 
     private Long boardId;
+    private Long memberId;
 
     private LocalDateTime createdDate;
 

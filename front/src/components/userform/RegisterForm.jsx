@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import DribbleButton from "../UI/DribbleButton";
 
 export default function RegisterForm() {
   const [form, setForm] = useState({ email: "", password: "", nickname: "" });
@@ -68,9 +69,10 @@ export default function RegisterForm() {
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
-        <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+        <DribbleButton type={"submit"} content={"회원가입"}></DribbleButton>
+        {/* <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
           회원가입
-        </button>
+        </button> */}
       </form>
     </div>
   );

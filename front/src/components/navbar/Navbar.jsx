@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import "../../assets/css/testButton.css";
+import GlitchButton from "../UI/GlitchButton";
 // import TButton from "./../Button";
 
 export default function Navbar() {
@@ -34,6 +34,13 @@ export default function Navbar() {
     }
   };
 
+  const handleLogin = () => {
+    navigate("/login");
+  };
+  const handleRegister = () => {
+    navigate("/register");
+  };
+
   return (
     <nav className="bg-indigo-600 shadow-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -44,26 +51,26 @@ export default function Navbar() {
         {/* 데스크탑 메뉴 */}
         <div className="hidden md:flex space-x-6">
           {isLoggedIn ? (
-            // <button onClick={handleLogout} className="btn btn-small btn-dark btn-glitch">
-            //   로그아웃
-            //   {/*  text-red-500 hover:text-red-400 focus:outline-none*/}
-            // </button>
-            <button onClick={handleLogout} className="btn btn-small btn-dark btn-glitch">
-              로그아웃
-              {/*  text-red-500 hover:text-red-400 focus:outline-none*/}
-            </button>
+            <div style={{ textAlign: "center" }}>
+              <GlitchButton methods={handleLogout} color="btn-logout">
+                로그아웃
+              </GlitchButton>
+            </div>
           ) : (
-            // <TButton onClick={handleLogout} variant="glitch" glitchActive={true} size="small">
-            //   로그아웃
-            //   {/*  text-red-500 hover:text-red-400 focus:outline-none*/}
-            // </TButton>
             <>
-              <Link to="/login" className="text-gray-700 hover:text-gray-900">
-                로그인
-              </Link>
-              <Link to="/register" className="text-gray-700 hover:text-gray-900">
-                회원가입
-              </Link>
+              {/* <div style={{ textAlign: "center" }}>
+                <GlitchButton methods={handleLogout}>로그인</GlitchButton>
+            </div> */}
+              <div style={{ textAlign: "center" }}>
+                <GlitchButton methods={handleLogin} color="btn-login">
+                  로그인
+                </GlitchButton>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <GlitchButton methods={handleRegister} color="btn-register">
+                  회원가입
+                </GlitchButton>
+              </div>
             </>
           )}
         </div>

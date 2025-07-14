@@ -2,6 +2,7 @@ package com.example.server.mapper;
 
 import java.util.List;
 
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -14,7 +15,7 @@ import com.example.server.entity.Like;
 import com.example.server.entity.Member;
 import com.example.server.repository.MemberRepository;
 
-@Mapper(componentModel = "spring") // Spring Bean으로 등록되도록 설정
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.FIELD) // Spring Bean으로 등록되도록 설정
 public abstract class BoardMapper { // ⭐ abstract 클래스로 변경하여 @Autowired 필드 주입 가능
 
     @Autowired // ⭐ MemberRepository를 주입받아 memberId -> Member 변환에 사용

@@ -48,7 +48,7 @@ const CommentItem = ({
       <div className="bg-white">
         {/* 헤더 */}
         <div className="flex justify-between items-center mb-2">
-          <span className="text-gray-900 font-semibold">{comment.writer || "익명"}</span>
+          <span className="text-gray-900 font-semibold">{comment.nickname || "익명"}</span>
           {!editing && (
             <span className="text-gray-500 text-sm">
               {new Date(comment.createdDate).toLocaleDateString("ko-KR", {
@@ -157,8 +157,9 @@ const CommentList = () => {
 
   const showList = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/comment/board/${boardId}`);
+      const res = await axios.get(`/comment/board/${boardId}`);
       setPosts(res.data);
+      console.log(res.data);
       console.log(res.data.createdDate);
     } catch (error) {
       console.error("댓글 불러오는 중 오류 : ", error);
@@ -168,7 +169,7 @@ const CommentList = () => {
   const createComment = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8080/comment/create", { boardId, content, parentId: null });
+      await axios.post("/comment/create", { boardId, content, parentId: null });
       setContent("");
       showList();
     } catch (error) {

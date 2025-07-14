@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import DribbleButton from "./../UI/DribbleButton";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -93,9 +94,10 @@ export default function LoginForm() {
             className="w-full p-2 border rounded"
           />
         </div>
-        <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        <DribbleButton type={"submit"} content={"로그인"}></DribbleButton>
+        {/* <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
           로그인
-        </button>
+        </button> */}
       </form>
     </div>
   );

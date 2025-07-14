@@ -13,12 +13,8 @@ const BoardList = () => {
       const res = await axios.get("/board/page", {
         params: { page, size },
       });
-      if (Array.isArray(res.data)) {
-        console.log("배열");
-        setPosts(res.data);
-      } else {
-        console.log("배열 아님");
-      }
+      const list = Array.isArray(res.data) ? res.data : res.data.content || [];
+      setPosts(list);
     } catch (error) {
       console.error("게시글 불러오기 실패 : ", error);
     }
@@ -41,6 +37,7 @@ const BoardList = () => {
 
   useEffect(() => {
     ViewList(currentPage, pageSize);
+    console.log("조회수", posts.viewCount);
   }, [currentPage]);
 
   useEffect(() => {
@@ -83,7 +80,7 @@ const BoardList = () => {
                 >
                   <td className="px-4 py-2">{item.id}</td>
                   <td className="px-4 py-2 text-gray-700 hover:underline">{item.title}</td>
-                  <td className="px-4 py-2 text-center">{item.writer || "익명"}</td>
+                  <td className="px-4 py-2 text-center">{item.nickname || "익명"}</td>
                   <td className="px-4 py-2 text-center">
                     {new Date(item.createdDate).toLocaleDateString("ko-KR", {
                       year: "2-digit",
@@ -91,8 +88,8 @@ const BoardList = () => {
                       day: "2-digit",
                     })}
                   </td>
-                  <td className="px-4 py-2 text-center">{item.views || 0}</td>
-                  <td className="px-4 py-2 text-center">{item.likes || 0}</td>
+                  <td className="px-4 py-2 text-center">{item.viewCount || 0}</td>
+                  <td className="px-4 py-2 text-center">{item.likesCount || 0}</td>
                 </tr>
               ))
             )}

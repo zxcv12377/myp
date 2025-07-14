@@ -1,0 +1,106 @@
+/* 1) 기본 버튼 스타일 */
+.btn {
+  display: inline-block;
+  padding: 8px;
+  /* font-family: "Roboto Mono", monospace; */
+  font-size: 14px;
+  font-weight: 500;
+  color: #121212;
+  /* background: #fff; */
+  /* border: 1px solid #121212; */
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 2) 옵션 클래스 */
+.btn-small {
+  max-width: 180px;
+}
+.btn-clear {
+  background: transparent;
+}
+.btn-clear:hover,
+.btn-light:hover {
+  background: #121212;
+  color: #fff;
+}
+.btn-dark {
+  background: #121212;
+  color: #fff;
+  border-color: #fff;
+}
+
+.btn-login:hover {
+  /* background-color: #44ff7c; */
+}
+
+.btn-logout:hover {
+  /* background-color: #ce1919; */
+}
+
+.btn-register:hover {
+  /* background-color: #8842d8; */
+}
+
+/* 3) 글리치 기본 */
+.btn-glitch {
+  transform: translateZ(0);
+}
+.btn-glitch-active::after,
+.btn-glitch-active::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 1px;
+}
+.btn-glitch-active::after {
+  left: -2px;
+  background: #ff536b;
+  animation: colorshift-red 2.6s infinite step-end;
+}
+.btn-glitch-active::before {
+  right: -2px;
+  background: #3ffeff;
+  animation: colorshift-blue 2.6s infinite step-end;
+}
+
+/* 4) 키프레임 */
+@keyframes colorshift-red {
+  0%,
+  7% {
+    background: #ff536b;
+  }
+  8%,
+  18% {
+    background: transparent;
+  }
+  19% {
+    background: #ff536b;
+    width: 2px;
+  }
+  23%,
+  100% {
+    background: transparent;
+  }
+}
+@keyframes colorshift-blue {
+  0%,
+  7% {
+    background: #3ffeff;
+  }
+  8%,
+  18% {
+    background: transparent;
+  }
+  19% {
+    background: #3ffeff;
+    width: 2px;
+  }
+  23%,
+  100% {
+    background: transparent;
+  }
+}

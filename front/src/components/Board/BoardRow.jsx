@@ -9,7 +9,7 @@ const BoardRow = () => {
 
   const { id } = useParams();
   const [post, setPost] = useState(null);
-  const [likes, setLikes] = useState();
+  // const [likes, setLikes] = useState();
   const [detail, setDetail] = useState();
 
   useEffect(() => {
@@ -32,7 +32,6 @@ const BoardRow = () => {
     try {
       const res = await axios.get(`/board/detail/${id}`);
       setDetail(res.data);
-      console.log(res.data);
     } catch (error) {
       console.log("유저 불러오는 중 오류", error);
     }
@@ -59,9 +58,11 @@ const BoardRow = () => {
 
   const likeHandler = async () => {
     try {
-      const res = await axios.put(`/board/${id}/likes`);
-      setLikes(res.data);
-      console.log("디테일" + res.data);
+      const { data: newCount } = await axios.put(`/board/${id}/likes`);
+      setPost((prev) => ({
+        ...prev,
+        likesCount: newCount,
+      }));
     } catch (error) {
       console.log("좋아요 에러", error);
     }
@@ -76,6 +77,7 @@ const BoardRow = () => {
         <div className="flex-[3]">
           <header className="border-b border-gray-200 pb-5 mb-8">
             <h1 className="text-3xl font-bold text-indigo-900">{post.title}</h1>
+            <p className="text-sm text-gray-500 mt-1">작성자: {post.nickname}</p>
             <p className="text-sm text-gray-500 mt-1">작성일: {new Date(post.createdDate).toLocaleString("ko-KR")}</p>
           </header>
           <div>
@@ -93,10 +95,11 @@ const BoardRow = () => {
                 목록
               </button>
             </div>
+
             <div className="flex space-x-2">
               <button type="button" onClick={likeHandler} className="button button--sacnite button--round-l">
-                <div className="text-sm">좋아요</div>
-                <div className="text-sm">{likes || 0}</div>
+                <div className="text-sm">추천</div>
+                <div className="text-sm">{post.likesCount || 0}</div>
               </button>
             </div>
 
@@ -118,6 +121,7 @@ const BoardRow = () => {
               </button>
             </div>
           </div>
+          <div>{/* 프로필 정보 */}</div>
 
           {/* 댓글 */}
           <section className="mt-6 border-t pt-6">

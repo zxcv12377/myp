@@ -51,7 +51,8 @@ public class SecurityConfig {
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(authorize -> authorize
                                                 .requestMatchers("/css/**", "/js/**", "/image/**").permitAll()
-                                                .requestMatchers(HttpMethod.GET, "/board", "/board/**")
+                                                .requestMatchers(HttpMethod.GET, "/board", "/board/**", "/",
+                                                                "/board/top/**")
                                                 .permitAll()
                                                 .requestMatchers("/auth/register", "/auth/login", "/auth/verify/**")
                                                 .permitAll()

@@ -14,4 +14,10 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     List<Board> getBoardList(@Param("p_page") int page, @Param("p_size") int size);
 
     List<Board> findTop5ByOrderByCreatedDateDesc();
+
+    @Procedure(name = "Board.getTop5ByLikes", outputParameterName = "p_result")
+    List<Board> getTop5ByLikes();
+
+    @Procedure(procedureName = "INCREMENT_VIEW_COUNT")
+    void incrementViewCount(@Param("p_board_id") Long boardId);
 }

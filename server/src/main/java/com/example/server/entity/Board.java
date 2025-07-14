@@ -7,6 +7,7 @@ import com.example.server.Base.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -34,6 +35,10 @@ import lombok.NoArgsConstructor;
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "p_size", type = Integer.class),
         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_result", type = void.class)
 }, resultClasses = Board.class)
+
+@NamedStoredProcedureQuery(name = "Board.getTop5ByLikes", procedureName = "get_top5_boards_by_likes", parameters = {
+        @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "p_result", type = void.class)
+}, resultClasses = Board.class)
 public class Board extends BaseEntity {
 
     @Id
@@ -57,6 +62,10 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Like> likesList = new ArrayList<>();
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Long viewCount = 0L;
 
     public Long getLikesCount() {
         return (long) this.likesList.size();

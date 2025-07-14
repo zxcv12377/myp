@@ -194,6 +194,7 @@ public class AuthService {
         log.info("만료된 redirect 삭제: {}", deleted);
     }
 
+    @Transactional
     public void logout(String refreshToken) {
         // 리프레시 토큰을 제거하면 더 이상 재발급 불가
         refreshRepository.deleteByToken(refreshToken);

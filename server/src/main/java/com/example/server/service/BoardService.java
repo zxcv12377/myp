@@ -14,10 +14,13 @@ import com.example.server.dto.BoardResponseDTO;
 import com.example.server.entity.Board;
 import com.example.server.entity.Like;
 import com.example.server.entity.Member;
+import com.example.server.entity.ViewLog;
+import com.example.server.entity.ViewLogId;
 import com.example.server.mapper.BoardMapper;
 import com.example.server.repository.BoardRepository;
 import com.example.server.repository.LikeRepository;
 import com.example.server.repository.MemberRepository;
+import com.example.server.repository.ViewLogRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,6 +32,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
+    private final ViewLogRepository viewLogRepository;
     private final BoardMapper bMapper;
 
     @Transactional(readOnly = true)
@@ -106,8 +110,26 @@ public class BoardService {
         }).collect(Collectors.toList());
     }
 
+    @Transactional
     public List<BoardResponseDTO> getTob5Boards(Long currentMemberId) {
         List<Board> top5Boards = boardRepository.findTop5ByOrderByCreatedDateDesc();
+        return top5Boards.stream()
+                .map(board -> {
+                    boolean likedByUser = false;
+                    if (currentMemberId != null) {
+                        Member currentMember = memberRepository.findById(currentMemberId).orElse(null);
+                        if (currentMember != null) {
+                            likedByUser = likeRepository.findByBoardAndMember(board, currentMember).isPresent();
+                        }
+                    }
+                    return bMapper.toDtoWithLikedStatus(board, likedByUser); // ⭐ Mapper 사용
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<BoardResponseDTO> getLikeTop5Boards(Long currentMemberId) {
+        List<Board> top5Boards = boardRepository.getTop5ByLikes();
         return top5Boards.stream()
                 .map(board -> {
                     boolean likedByUser = false;
@@ -161,5 +183,19 @@ public class BoardService {
 
         long updatedLikesCount = likeRepository.countByBoard(board);
         return updatedLikesCount;
+    }
+
+    @Transactional
+    public void increaseViewCount(Long boardId) {
+        boardRepository.incrementViewCount(boardId);
+    }
+
+    @Transactional
+    public void countViewForMember(Long memberId, Long boardId) {
+        ViewLogId key = new ViewLogId(memberId, boardId);
+        if (!viewLogRepository.existsById(key)) {
+            viewLogRepository.save(new ViewLog(key));
+            boardRepository.incrementViewCount(boardId);
+        }
     }
 }

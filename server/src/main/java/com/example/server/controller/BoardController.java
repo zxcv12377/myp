@@ -1,6 +1,8 @@
 package com.example.server.controller;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,7 +17,10 @@ import com.example.server.entity.Member;
 import com.example.server.security.CustomUserDetails;
 import com.example.server.service.BoardService;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -38,15 +43,38 @@ public class BoardController {
 
     @GetMapping("/")
     public ResponseEntity<List<BoardResponseDTO>> list(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        Long memberId = customUserDetails.getId();
+        Long memberId = (customUserDetails != null)
+                ? customUserDetails.getId()
+                : null;
         return ResponseEntity.ok(boardService.list(memberId));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<BoardResponseDTO> getRow(@PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        Long memberId = customUserDetails.getId();
-        return ResponseEntity.ok(boardService.getOne(id, memberId));
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            HttpServletRequest req,
+            HttpServletResponse res) {
+        Long memberId = (customUserDetails != null)
+                ? customUserDetails.getId()
+                : null;
+        if (memberId != null) {
+            // 로그인 유저: DB 기록 기반
+            boardService.countViewForMember(memberId, id);
+        } else {
+            // 비회원: 브라우저 쿠키 기반
+            String cookieName = "viewed_" + id;
+            boolean viewed = Arrays.stream(Optional.ofNullable(req.getCookies()).orElse(new Cookie[0]))
+                    .anyMatch(c -> c.getName().equals(cookieName));
+            if (!viewed) {
+                boardService.increaseViewCount(id);
+                Cookie c = new Cookie(cookieName, "true");
+                c.setMaxAge(24 * 60 * 60); // 1일
+                c.setPath("/"); // 전체 경로
+                res.addCookie(c);
+            }
+        }
+        BoardResponseDTO dto = boardService.getBoardDetail(id, memberId);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/page")
@@ -54,15 +82,28 @@ public class BoardController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        Long memberId = customUserDetails.getId();
+        Long memberId = (customUserDetails != null)
+                ? customUserDetails.getId()
+                : null;
         return ResponseEntity.ok(boardService.getBoardPage(page, size, memberId));
     }
 
-    @GetMapping("/top5")
-    public ResponseEntity<List<BoardResponseDTO>> getTop5(
+    @GetMapping("/top5/new")
+    public ResponseEntity<List<BoardResponseDTO>> getTop5New(
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        Long memberId = customUserDetails.getId();
+        Long memberId = (customUserDetails != null)
+                ? customUserDetails.getId()
+                : null;
         return ResponseEntity.ok(boardService.getTob5Boards(memberId));
+    }
+
+    @GetMapping("/top5/like")
+    public ResponseEntity<List<BoardResponseDTO>> getTop5Like(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long memberId = (customUserDetails != null)
+                ? customUserDetails.getId()
+                : null;
+        return ResponseEntity.ok(boardService.getLikeTop5Boards(memberId));
     }
 
     @PostMapping("/create")
@@ -117,6 +158,18 @@ public class BoardController {
         long updatedLikesCount = boardService.toggleLike(boardId, loggedInMemberId);
         // 업데이트된 좋아요 수만 클라이언트에게 반환
         return ResponseEntity.ok(updatedLikesCount);
+    }
+
+    @GetMapping("/view/{id}")
+    public ResponseEntity<BoardResponseDTO> viewBoard(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long currentMemberId,
+            HttpSession session) {
+        // 세션에 “viewed_{id}” 키 없을 때만 조회수 증가
+
+        // DTO 반환 (좋아요 여부 등 포함)
+        BoardResponseDTO dto = boardService.getBoardDetail(id, currentMemberId);
+        return ResponseEntity.ok(dto);
     }
 
 }
