@@ -159,8 +159,6 @@ const CommentList = () => {
     try {
       const res = await axios.get(`/comment/board/${boardId}`);
       setPosts(res.data);
-      console.log(res.data);
-      console.log(res.data.createdDate);
     } catch (error) {
       console.error("댓글 불러오는 중 오류 : ", error);
     }

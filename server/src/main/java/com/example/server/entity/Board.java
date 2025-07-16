@@ -48,6 +48,7 @@ public class Board extends BaseEntity {
     private String title;
     @NotNull
     private String content;
+    private String imagePath;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -62,6 +63,10 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Like> likesList = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Channel channel;
 
     @Builder.Default
     @Column(nullable = false)
@@ -81,5 +86,9 @@ public class Board extends BaseEntity {
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    public void changeImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }

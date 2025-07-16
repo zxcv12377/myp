@@ -1,13 +1,17 @@
 package com.example.server.service;
 
-import java.util.HashSet;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.server.dto.BoardDTO;
 import com.example.server.dto.BoardResponseDTO;
@@ -34,6 +38,7 @@ public class BoardService {
     private final LikeRepository likeRepository;
     private final ViewLogRepository viewLogRepository;
     private final BoardMapper bMapper;
+    private final String uploadDir = "/path/to/upload";
 
     @Transactional(readOnly = true)
     public List<BoardResponseDTO> list(Long currentMemberId) { // currentMemberId 추가
@@ -68,27 +73,67 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardDTO update(Long id, BoardDTO dto) {
+    public BoardDTO update(Long id, BoardDTO dto, MultipartFile image, Long memberId) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+        if (!board.getMember().getId().equals(memberId)) {
+            throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
         board.changeTitle(dto.getTitle());
         board.changeContent(dto.getContent());
+
+        if (image != null && !image.isEmpty()) {
+            // (선택) 기존 파일 삭제
+            if (board.getImagePath() != null) {
+                Path old = Paths.get(uploadDir, Paths.get(board.getImagePath()).getFileName().toString());
+                try {
+                    Files.deleteIfExists(old);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            Path target = Paths.get(uploadDir, filename);
+            try {
+                image.transferTo(target);
+            } catch (IllegalStateException | IOException e) {
+                e.printStackTrace();
+            }
+            board.changeImagePath("/uploads/" + filename);
+        }
+
         Board updatedBoard = boardRepository.save(board);
         return bMapper.toDto(updatedBoard);
     }
 
     @Transactional
-    public void delete(Long id) {
-        boardRepository.deleteById(id);
+    public void delete(Long boardId, Long memberId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+        if (!board.getMember().getId().equals(memberId)) {
+            throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
+        boardRepository.deleteById(boardId);
     }
 
     @Transactional
-    public BoardResponseDTO create(BoardDTO dto, Long id) {
+    public BoardResponseDTO create(BoardDTO dto, Long id, MultipartFile image) {
 
         Member author = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("작성자(Member)를 찾을 수 없습니다. ID: " + id));
         Board board = bMapper.toEntity(dto);
         board.setMember(author);
+
+        if (image != null && !image.isEmpty()) {
+            String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            Path filePath = Paths.get(uploadDir, filename);
+            try {
+                image.transferTo(filePath);
+            } catch (IllegalStateException | IOException e) {
+                e.printStackTrace();
+            }
+            board.changeImagePath("/uploads/" + filename);
+        }
 
         Board savedBoard = boardRepository.save(board);
 

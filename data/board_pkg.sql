@@ -33,24 +33,25 @@ WHERE object_name = 'INCREMENT_VIEW_COUNT' AND object_type = 'PROCEDURE';
 
 -- 추천수 TOP5
 CREATE OR REPLACE PROCEDURE get_top5_boards_by_likes(
-	p_result OUT SYS_REFCURSOR
+  p_result OUT SYS_REFCURSOR
 )
 AS
 BEGIN
-	OPEN p_result FOR
-		SELECT *
-		FROM (
-			SELECT
-			  b.*
-			FROM board b
-			LEFT JOIN likes_table l
-			  ON b.id = l.board_id
-			GROUP BY
-			  b.id, b.title, b.content, b.view_count,
-			  b.created_date, b.updated_date, b.member_id
-      		ORDER BY COUNT(l.board_id) DESC
-		)
-		WHERE ROWNUM <= 5;
+  OPEN p_result FOR
+    SELECT *
+    FROM (
+      SELECT
+        b.*,
+        NVL(l.like_count, 0) AS like_count
+      FROM board b
+      LEFT JOIN (
+        SELECT board_id, COUNT(*) AS like_count
+        FROM likes_table
+        GROUP BY board_id
+      ) l ON b.id = l.board_id
+      ORDER BY NVL(l.like_count, 0) DESC
+    )
+    WHERE ROWNUM <= 5;
 END get_top5_boards_by_likes;
 
 SELECT owner, object_name, object_type, status

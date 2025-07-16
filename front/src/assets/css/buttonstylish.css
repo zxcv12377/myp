@@ -11,7 +11,6 @@
   background: #37474f;
   color: #fff;
 }
-
 /* Common button styles */
 .button {
   float: left;
@@ -421,7 +420,7 @@
   content: "";
   position: absolute;
   border-radius: inherit;
-  background: #7986cb;
+  background: #4f39f6;
   z-index: -1;
 }
 .button--nuka::before {

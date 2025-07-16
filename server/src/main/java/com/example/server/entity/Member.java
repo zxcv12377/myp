@@ -1,5 +1,6 @@
 package com.example.server.entity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,6 +68,11 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Like> likedBoards = new java.util.ArrayList<>();
+
+    @Builder.Default
+    @JsonManagedReference
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Subscription> subscriptions = new ArrayList<>();
 
     public void changeEmailverified(boolean emailverified) {
         this.emailverified = emailverified;

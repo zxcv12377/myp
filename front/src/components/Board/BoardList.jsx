@@ -37,7 +37,6 @@ const BoardList = () => {
 
   useEffect(() => {
     ViewList(currentPage, pageSize);
-    console.log("조회수", posts.viewCount);
   }, [currentPage]);
 
   useEffect(() => {

@@ -10,7 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +26,8 @@ public class BoardDTO {
     private String content;
 
     private Long memberId;
+
+    private String imagePath;
 
     private LocalDateTime createdDate;
 

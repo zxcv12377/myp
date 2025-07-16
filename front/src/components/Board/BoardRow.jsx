@@ -17,6 +17,7 @@ const BoardRow = () => {
       try {
         const res = await axios.get(`/board/${id}`);
         setPost(res.data);
+        console.log(res.data);
         if (!res) {
           console.error("존재하지 않은 게시물 입니다");
         }
@@ -80,7 +81,7 @@ const BoardRow = () => {
             <p className="text-sm text-gray-500 mt-1">작성자: {post.nickname}</p>
             <p className="text-sm text-gray-500 mt-1">작성일: {new Date(post.createdDate).toLocaleString("ko-KR")}</p>
           </header>
-          <div>
+          <div className="h-[300px] overflow-y-auto">
             <main className="text-gray-800 text-[1.05rem] leading-relaxed whitespace-pre-line">{post.content}</main>
           </div>
 

@@ -4,11 +4,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.server.dto.BoardDTO;
 import com.example.server.dto.BoardResponseDTO;
@@ -29,7 +31,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -106,27 +110,38 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getLikeTop5Boards(memberId));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<BoardResponseDTO> create(@RequestBody @Valid BoardDTO dto,
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BoardResponseDTO> create(
+            @ModelAttribute @Valid BoardDTO dto,
+            @RequestPart(value = "image", required = false) MultipartFile image,
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long memberId = customUserDetails.getId();
         if (memberId == null) {
             log.error("게시글 생성 시 로그인된 사용자 ID를 찾을 수 없습니다.");
             throw new IllegalArgumentException("게시글 작성을 위해서는 로그인이 필요합니다.");
         }
-        BoardResponseDTO boardResponseDTO = boardService.create(dto, memberId);
+        BoardResponseDTO boardResponseDTO = boardService.create(dto, memberId, image);
         return ResponseEntity.ok(boardResponseDTO);
     }
 
-    @PutMapping("/modify/{id}")
-    public ResponseEntity<BoardDTO> update(@PathVariable Long id, @RequestBody @Valid BoardDTO dto) {
-        BoardDTO boardDTO = boardService.update(id, dto);
+    @PutMapping(value = "/modify/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BoardDTO> update(@PathVariable Long id, @ModelAttribute @Valid BoardDTO dto,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long memberId = (customUserDetails != null)
+                ? customUserDetails.getId()
+                : null;
+        BoardDTO boardDTO = boardService.update(id, dto, image, memberId);
         return ResponseEntity.ok(boardDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRow(@PathVariable Long id) {
-        boardService.delete(id);
+    public ResponseEntity<Void> deleteRow(@PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long memberId = (customUserDetails != null)
+                ? customUserDetails.getId()
+                : null;
+        boardService.delete(id, memberId);
         return ResponseEntity.ok().build();
     }
 

@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import GlitchButton from "../UI/GlitchButton";
-// import TButton from "./../Button";
+import SearchButton from "../UI/SearchButton";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -42,6 +42,7 @@ export default function Navbar() {
   };
 
   return (
+    // #4f39f6 indigo-600 컬러코드
     <nav className="bg-indigo-600 shadow-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* 로고 */}
@@ -49,7 +50,17 @@ export default function Navbar() {
           📝 게시판
         </Link>
         {/* 데스크탑 메뉴 */}
-        <div className="hidden md:flex space-x-6">
+        <div>
+          <form className="flex items-center space-x-2">
+            <input
+              type="text"
+              placeholder="검색어를 입력하세요"
+              className="w-48 sm:w-64 md:w-80 lg:w-96 xl:w-112 px-2 border border-gray-400 bg-gray-100 rounded h-10"
+            />
+            <SearchButton content="검색" type="submit"></SearchButton>
+          </form>
+        </div>
+        <div className="md:flex space-x-6">
           {isLoggedIn ? (
             <div style={{ textAlign: "center" }}>
               <GlitchButton methods={handleLogout} color="btn-logout">
@@ -74,38 +85,6 @@ export default function Navbar() {
             </>
           )}
         </div>
-        {/* 모바일 메뉴 버튼 */}
-        <div className="md:hidden">
-          <button
-            type="button"
-            className="text-gray-700 hover:text-gray-900 focus:outline-none"
-            onClick={() => document.getElementById("mobile-menu").classList.toggle("hidden")}
-          >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8h16M4 16h16" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      {/* 모바일 메뉴 */}
-      <div id="mobile-menu" className="hidden md:hidden bg-white">
-        {isLoggedIn ? (
-          <button
-            onClick={handleLogout}
-            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none"
-          >
-            로그아웃
-          </button>
-        ) : (
-          <>
-            <Link to="/login" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-              로그인
-            </Link>
-            <Link to="/register" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-              회원가입
-            </Link>
-          </>
-        )}
       </div>
     </nav>
   );

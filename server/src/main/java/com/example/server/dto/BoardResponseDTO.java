@@ -23,6 +23,7 @@ public class BoardResponseDTO {
     private boolean likedByUser; // 좋아요 여부
     private Long memberId;
     private Long viewCount;
+    private String imagePath;
 
     public void setLikedByUser(boolean likedByUser) {
         this.likedByUser = likedByUser;
@@ -42,6 +43,7 @@ public class BoardResponseDTO {
                 .nickname(nickname)
                 .likedByUser(likedByUser) // 전달받은 likedByUser 값 설정
                 .viewCount(board.getViewCount())
+                .imagePath(board.getImagePath())
                 .build();
     }
 }
